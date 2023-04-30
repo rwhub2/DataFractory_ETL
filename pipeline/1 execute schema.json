@@ -1,0 +1,97 @@
+{
+	"name": "1 execute schema",
+	"properties": {
+		"activities": [
+			{
+				"name": "Set variable1",
+				"type": "SetVariable",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "initialscript",
+					"value": {
+						"value": "@concat('https://sourceblob2.blob.core.windows.net/scripts/create_schema_scripts/','df_create_schema.sql')",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "Web1",
+				"type": "WebActivity",
+				"dependsOn": [
+					{
+						"activity": "Set variable1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"url": {
+						"value": "@variables('initialscript')",
+						"type": "Expression"
+					},
+					"method": "GET",
+					"headers": {
+						"x-ms-version": "2017-11-09",
+						"xs-ms-blob-type": "BlockBlob"
+					},
+					"authentication": {
+						"type": "MSI",
+						"resource": "https://storage.azure.com/"
+					}
+				}
+			},
+			{
+				"name": "Script1",
+				"type": "Script",
+				"dependsOn": [
+					{
+						"activity": "Web1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"linkedServiceName": {
+					"referenceName": "AzureSqlDatabase1",
+					"type": "LinkedServiceReference"
+				},
+				"typeProperties": {
+					"scripts": [
+						{
+							"type": "Query",
+							"text": {
+								"value": "@concat('DECLARE @sql nvarchar(4000); SET @sql = ','''',activity('Web1').output.Response,'''',' EXEC sp_executesql @sql')",
+								"type": "Expression"
+							}
+						}
+					],
+					"scriptBlockExecutionTimeout": "02:00:00"
+				}
+			}
+		],
+		"variables": {
+			"initialscript": {
+				"type": "String"
+			}
+		},
+		"annotations": []
+	}
+}
