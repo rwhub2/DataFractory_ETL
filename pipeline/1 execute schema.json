@@ -10,7 +10,7 @@
 				"typeProperties": {
 					"variableName": "initialscript",
 					"value": {
-						"value": "@concat('https://sourceblob2.blob.core.windows.net/scripts/create_schema_scripts/','df_create_schema.sql')",
+						"value": "@concat('https://sourceblob2.blob.core.windows.net/scripts/','df_create_schema.sql')",
 						"type": "Expression"
 					}
 				}
